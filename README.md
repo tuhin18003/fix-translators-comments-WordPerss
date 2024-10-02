@@ -36,6 +36,8 @@ If your OpenAI API key is `exampleApiKey` and you want to process files in the `
 composer run-script fix-translators-comments --openApiKey=exampleApiKey --directory=/test
 ```
 
+
+
 **2. Processing files in the current directory:**
 
 If you want to process files in the current directory, you can simply run:
@@ -43,12 +45,32 @@ If you want to process files in the current directory, you can simply run:
 ```bash 
 composer run-script fix-translators-comments --openApiKey=exampleApiKey --directory=.
 ```
+
+
 **3. Checking the usage:**
 
 If you need to check the command usage and parameters, you can use:
 
 ```bash 
 composer run-script fix-translators-comments
+```
+
+**4. In your project's composer.json - scripts**
+
+If you want to process files in the `/test` directory, the command will look like this:
+
+```bash 
+"scripts": {
+      "fixTranslatorsComments": "php ./vendor/tuhin18003/fix-translators-comments/src/FixTranslatorsCommand.php --openApiKey=exampleApiKey --directory=./test"
+  }
+```
+
+you want to process a single file, the command will look like this:
+
+```bash 
+"scripts": {
+      "fixTranslatorsComments": "php ./vendor/tuhin18003/fix-translators-comments/src/FixTranslatorsCommand.php --openApiKey=exampleApiKey --directory=./test/filename.php"
+  }
 ```
 
 

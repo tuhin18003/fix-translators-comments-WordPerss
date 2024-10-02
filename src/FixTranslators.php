@@ -24,7 +24,7 @@ class FixTranslators {
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [
-                    'model' => 'text-davinci-003',
+                    'model' => 'gpt-3.5-turbo',
                     'prompt' => $prompt,
                     'max_tokens' => 60,
                     'temperature' => 0.5,
@@ -62,16 +62,27 @@ class FixTranslators {
     }
 
     // Function to recursively process directory
-    public function processDirectory($dir) {
-        $files = scandir($dir);
-        foreach ($files as $file) {
-            if ($file === '.' || $file === '..') continue;
-            $filePath = $dir . '/' . $file;
-            if (is_dir($filePath)) {
-                $this->processDirectory($filePath);
-            } elseif (pathinfo($filePath, PATHINFO_EXTENSION) === 'php') {
-                $this->addTranslatorsComment($filePath);
+    public function processDirectory($input) {
+        // Check if the input is a directory
+        if (is_dir($input)) {
+            $files = scandir($input);
+            foreach ($files as $file) {
+                if ($file === '.' || $file === '..') continue; // Skip current and parent directory indicators
+                $filePath = $input . '/' . $file;
+                if (is_dir($filePath)) {
+                    // Recursively process subdirectories
+                    $this->processDirectory($filePath);
+                } elseif (pathinfo($filePath, PATHINFO_EXTENSION) === 'php') {
+                    // Process PHP files
+                    $this->addTranslatorsComment($filePath);
+                }
             }
+        } elseif (is_file($input) && pathinfo($input, PATHINFO_EXTENSION) === 'php') {
+            // If the input is a single PHP file, process it directly
+            $this->addTranslatorsComment($input);
+        } else {
+            // Handle the case where the input is neither a valid directory nor a PHP file
+            echo "The provided input is not a valid PHP file or directory: $input\n";
         }
     }
 }
