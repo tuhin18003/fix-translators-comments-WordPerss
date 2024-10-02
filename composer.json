@@ -1,5 +1,5 @@
 {
-    "name": "your-vendor/fix-translators",
+    "name": "tuhin18003/fix-translators-comments",
     "description": "A PHP package to automatically add translators' comments in WordPress localization code using ChatGPT.",
     "type": "library",
     "license": "MIT",
