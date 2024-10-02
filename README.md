@@ -79,6 +79,10 @@ Then on the terminal run:
 composer run fixTranslatorsComments
 ```
 
+Sample Results:
+
+<img src="http://static.codesolz.net/github/fix-translators-comments/fix-translators-comments.png" alt="result sample"/>
+
 
 ### Credentials
 - *Created by - [M.Tuhin](https://codesolz.net/)*
