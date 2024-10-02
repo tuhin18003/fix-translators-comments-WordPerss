@@ -28,7 +28,7 @@ composer run-script fix-translators-comments --openApiKey=<YOUR_API_KEY> --direc
 
 ## Example Usages
 
-**1.  **Using a specific API key and directory: ****
+**1. Using a specific API key and directory:**
 
 If your OpenAI API key is `exampleApiKey` and you want to process files in the `/test` directory, the command will look like this:
 
