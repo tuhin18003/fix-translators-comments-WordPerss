@@ -1,0 +1,26 @@
+{
+    "name": "your-vendor/fix-translators",
+    "description": "A PHP package to automatically add translators' comments in WordPress localization code using ChatGPT.",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "YourVendor\\FixTranslators\\": "src/"
+        }
+    },
+    "require": {
+        "php": "^7.4 || ^8.0",
+        "guzzlehttp/guzzle": "^7.0",
+        "openai-php/client": "^0.1"
+    },
+    "require-dev": {},
+    "authors": [
+        {
+            "name": "Your Name",
+            "email": "your-email@example.com"
+        }
+    ],
+    "scripts": {
+        "fix-translators-comments": "php src/FixTranslatorsCommand.php"
+    }
+}
