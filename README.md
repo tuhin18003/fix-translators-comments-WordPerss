@@ -73,6 +73,12 @@ you want to process a single file, the command will look like this:
   }
 ```
 
+Then on the terminal run:
+
+```bash 
+composer run fixTranslatorsComments
+```
+
 
 ### Credentials
 - *Created by - [M.Tuhin](https://codesolz.net/)*
