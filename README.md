@@ -85,7 +85,7 @@ Result Summary:
 
 Sample Comment added on file:
 
-<img src="http://static.codesolz.net/github/fix-translators-comments/sample-result.png" alt="result sample"/>
+<img src="http://static.codesolz.net/github/fix-translators-comments/sample-comment.png" alt="comment sample"/>
 
 
 ### Credentials
