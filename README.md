@@ -7,7 +7,7 @@ This package automatically adds translators' comments to your WordPress localiza
 Run the following command to install via Composer:
 
 ```bash
-composer require your-vendor/fix-translators
+composer require tuhin18003/fix-translators-comments
 ```
 
 ## Usage
