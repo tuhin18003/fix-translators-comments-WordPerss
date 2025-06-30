@@ -1,10 +1,9 @@
 <?php
-
-namespace YourVendor\FixTranslators;
+namespace tuhin18003\FixTranslators;
 
 require 'vendor/autoload.php';
 
-use YourVendor\FixTranslators\FixTranslators;
+use tuhin18003\FixTranslators\FixTranslators;
 
 class FixTranslatorsCommand
 {
@@ -12,6 +11,7 @@ class FixTranslatorsCommand
     {
         $fixTranslators = new FixTranslators($apiKey);
         $fixTranslators->processDirectory($directory);
+        $fixTranslators->displayResultSummary();
         echo "Translators' comments added successfully to $directory.\n";
     }
 
@@ -19,7 +19,7 @@ class FixTranslatorsCommand
     {
         $options = getopt("", ["openApiKey:", "directory:"]);
 
-        if (!isset($options['openApiKey']) || !isset($options['directory'])) {
+        if (! isset($options['openApiKey']) || ! isset($options['directory'])) {
             echo "Usage: composer run-script fix-translators-comments --openApiKey=<YOUR_API_KEY> --directory=<DIRECTORY_PATH>\n";
             exit(1);
         }

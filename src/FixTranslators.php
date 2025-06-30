@@ -1,15 +1,16 @@
 <?php
-
-namespace YourVendor\FixTranslators;
+namespace tuhin18003\FixTranslators;
 
 use GuzzleHttp\Client;
 
-class FixTranslators {
+class FixTranslators
+{
     private $client;
     private $apiKey;
     private $resultSummary = [];
 
-    public function __construct($apiKey) {
+    public function __construct($apiKey)
+    {
         $this->client = new Client();
         $this->apiKey = $apiKey;
     }
@@ -20,25 +21,49 @@ class FixTranslators {
      * @param [type] $snippet
      * @return void
      */
-    public function getCommentFromChatGPT($snippet) {
+    public function getCommentFromChatGPT($snippet)
+    {
         $prompt = "Provide a suitable translators comment for this code: " . $snippet;
 
+        // return " %s is the rule title."; // Example static return for testing
+
         try {
-            $response = $this->client->post('https://api.openai.com/v1/completions', [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $this->apiKey,
-                    'Content-Type' => 'application/json',
-                ],
-                'json' => [
-                    'model' => 'gpt-3.5-turbo',
-                    'prompt' => $prompt,
-                    'max_tokens' => 60,
-                    'temperature' => 0.5,
+            $response = $this->client->post(
+                'https://api.openai.com/v1/chat/completions',
+                [
+                    'headers' => [
+                        'Authorization' => 'Bearer ' . $this->apiKey,
+                        'Content-Type'  => 'application/json',
+                    ],
+                    'json'    => [
+                        'model'       => 'gpt-3.5-turbo',
+                        'messages'    => [
+                            // Optional system instruction
+                            ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+                            // Your user prompt
+                            ['role' => 'user', 'content' => $prompt],
+                        ],
+                        'max_tokens'  => 60,
+                        'temperature' => 0.5,
+                    ],
                 ]
-            ]);
+            );
 
             $responseBody = json_decode($response->getBody(), true);
-            return $responseBody['choices'][0]['text'];
+
+            // 1️⃣ Completions-style response
+            if (! empty($responseBody['choices'][0]['text'])) {
+                return $responseBody['choices'][0]['text'];
+            }
+            // 2️⃣ Chat-style response
+            elseif (! empty($responseBody['choices'][0]['message']['content'])) {
+                return $responseBody['choices'][0]['message']['content'];
+            }
+            // 3️⃣ Nothing usable
+            else {
+                echo 'No valid response from OpenAI API.';
+                return null;
+            }
 
         } catch (\Exception $e) {
             echo "Error: " . $e->getMessage();
@@ -52,30 +77,31 @@ class FixTranslators {
      * @param [type] $filePath
      * @return void
      */
-    public function addTranslatorsComment($filePath) {
+    public function addTranslatorsComment($filePath)
+    {
         $content = file_get_contents($filePath);
-    
-        // Initialize counters
+
+                      // Initialize counters
         $matches = 0; // Total matches found
-        $fixed = 0;   // Newly added comments
-    
+        $fixed   = 0; // Newly added comments
+
         // Regex to match sprintf and __() calls
         $pattern = '/(sprintf\s*\(\s*__\(\s*\'(.*?)\'.*?\)\s*,\s*(.*?))\)/';
-    
+
         // Split content into lines for individual processing
-        $lines = explode("\n", $content);
-        $newContent = '';
+        $lines         = explode("\n", $content);
+        $newContent    = '';
         $commentExists = 0;
-    
+
         foreach ($lines as $i => $line) {
             // Check if the line contains a sprintf call
             if (preg_match($pattern, $line, $matchesArray)) {
                 $matches++; // Increment matches count
-    
+
                 // Check if the previous line already contains a Translators comment
                 $previousLineIndex = $i - 1;
                 $alreadyHasComment = false;
-    
+
                 // Check for existing translators comment in the previous line
                 if ($previousLineIndex >= 0) {
                     $previousLine = trim($lines[$previousLineIndex]);
@@ -83,7 +109,7 @@ class FixTranslators {
                         $alreadyHasComment = true;
                     }
                 }
-    
+
                 // If the comment already exists, treat it as fixed without adding a new one
                 if ($alreadyHasComment) {
                     // Do not increment fixed, but treat as fixed for remaining count
@@ -91,22 +117,22 @@ class FixTranslators {
                 } else {
                     // Generate a new comment only if it doesn't exist
                     $comment = $this->getCommentFromChatGPT($matchesArray[0]);
-    
+
                     if ($comment) {
-                        // If a new comment is generated, add it
+                                  // If a new comment is generated, add it
                         $fixed++; // Increment fixed count since we're adding a new comment
-    
+
                         // Get leading whitespace from the current line
                         $leadingWhitespace = '';
                         preg_match('/^\s*/', $line, $whitespaceMatches);
-                        if (!empty($whitespaceMatches)) {
+                        if (! empty($whitespaceMatches)) {
                             $leadingWhitespace = $whitespaceMatches[0]; // Capture leading whitespace
                         }
-    
-                        // Add the comment with the same indentation as the line
+
+                                                                                             // Add the comment with the same indentation as the line
                         $newContent .= $leadingWhitespace . "/* Translators: $comment */\n"; // Add the comment with leading whitespace
                     }
-    
+
                     // Append the original line
                     $newContent .= $line . "\n";
                 }
@@ -115,41 +141,44 @@ class FixTranslators {
                 $newContent .= $line . "\n";
             }
         }
-    
+
         // Write the modified content back if any new comments were added
         if ($fixed > 0) {
             file_put_contents($filePath, $newContent);
         }
-    
+
         // Calculate remaining count based on matches and fixed comments
         $remaining = $matches - ($fixed + $commentExists);
-    
+
         // Ensure remaining count does not go negative
         if ($remaining < 0) {
             $remaining = 0;
         }
-    
+
         // Track summary information for the result
         $this->resultSummary[] = [
-            'file' => $filePath,
-            'fixed' => $fixed, // Count of newly added comments
-            'remaining' => $remaining // Remaining count adjusted correctly
+            'file'      => $filePath,
+            'fixed'     => $fixed,     // Count of newly added comments
+            'remaining' => $remaining, // Remaining count adjusted correctly
         ];
     }
 
-    
     /**
      * Function to recursively process directory
      *
      * @param [type] $input
      * @return void
      */
-    public function processDirectory($input) {
+    public function processDirectory($input)
+    {
         // Check if the input is a directory
         if (is_dir($input)) {
             $files = scandir($input);
             foreach ($files as $file) {
-                if ($file === '.' || $file === '..') continue; // Skip current and parent directory indicators
+                if ($file === '.' || $file === '..') {
+                    continue;
+                }
+                // Skip current and parent directory indicators
                 $filePath = $input . '/' . $file;
                 if (is_dir($filePath)) {
                     // Recursively process subdirectories
@@ -168,24 +197,24 @@ class FixTranslators {
         }
     }
 
-
     /**
      * Function to display the result summary
      *
      * @return void
      */
-    public function displayResultSummary() {
+    public function displayResultSummary()
+    {
         echo "\nTRANSLATORS RESULT SUMMARY\n";
         echo "--------------------------------------------------------------------------------\n";
         echo "FILE                                                            FIXED  REMAINING\n";
         echo "--------------------------------------------------------------------------------\n";
 
-        $totalFixed = 0;
+        $totalFixed     = 0;
         $totalRemaining = 0;
 
         foreach ($this->resultSummary as $result) {
-            $fileName = $result['file'];
-            $fixed = $result['fixed'];
+            $fileName  = $result['file'];
+            $fixed     = $result['fixed'];
             $remaining = $result['remaining'];
             $totalFixed += $fixed;
             $totalRemaining += $remaining;
