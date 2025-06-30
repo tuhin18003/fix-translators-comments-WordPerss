@@ -2,22 +2,22 @@ name: Create GitHub Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    tags: ['v*']
+
+# 🚩 Give the default token write access
+permissions:
+  contents: write
 
 jobs:
   release:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
-          name: ${{ github.ref_name }}
-          body: "Auto-generated release for version ${{ github.ref_name }}"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          name:     ${{ github.ref_name }}
+          body:     "Auto-generated release for version ${{ github.ref_name }}"
